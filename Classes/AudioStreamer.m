@@ -476,6 +476,11 @@ void ASReadStreamCallBack
 // Parameters:
 //    anErrorCode - the error condition
 //
+
+-(AudioStreamerState)state
+{
+    return state;
+}
 - (void)setState:(AudioStreamerState)aStatus
 {
 	@synchronized(self)
@@ -796,7 +801,7 @@ void ASReadStreamCallBack
 			if (state != AS_STOPPING &&
 				state != AS_STOPPED)
 			{
-				NSLog(@"### Not starting audio thread. State code is: %ld", state);
+				NSLog(@"### Not starting audio thread. State code is: %u", state);
 			}
 			self.state = AS_INITIALIZED;
 			[pool release];
