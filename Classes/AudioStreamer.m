@@ -222,6 +222,12 @@ void ASReadStreamCallBack
 	[streamer handleReadFromStream:aStream eventType:eventType];
 }
 
+@interface AudioStreamer()
+
+@property (nonatomic, assign) BOOL pausedByInterruption;
+
+@end
+
 @implementation AudioStreamer
 
 @synthesize errorCode;
@@ -2414,15 +2420,25 @@ cleanup:
 //
 - (void)handleInterruptionChangeToState:(AudioQueuePropertyID)inInterruptionState
 {
-	if (inInterruptionState == kAudioSessionBeginInterruption)
-	{
-		[self pause];
-	}
-	else if (inInterruptionState == kAudioSessionEndInterruption)
-	{
-		AudioSessionSetActive( true );
-		[self pause];
-	}
+    if (inInterruptionState == kAudioSessionBeginInterruption)
+    {
+        
+        if ([self isPlaying]) {
+            [self pause];
+            
+            self.pausedByInterruption = YES;
+        }
+    }
+    else if (inInterruptionState == kAudioSessionEndInterruption)
+    {
+        AudioSessionSetActive( true );
+        
+        if ([self isPaused] && self.pausedByInterruption) {
+            [self pause]; // this is actually resume
+            
+            self.pausedByInterruption = NO; // this is redundant
+        }
+    }
 }
 #endif
 
